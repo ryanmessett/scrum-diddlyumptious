@@ -1,0 +1,11 @@
+This document will be used to break down the overall goal of the project into multiple sections so that each person will 
+have a semi-equal role in developing the software. Please contribute to this document and add requirements to each section or
+propose better sectioning of duties.
+
+Different large sections of code required:
+
+Backend creation of board (just the array)
+- Function to produce 3xn array containing: Color, x location, y location (Create empty at first in a Pandas dataframe?
+-Use built-in pandas functions to load from csv and go to csv
+
+FILL ME UP
