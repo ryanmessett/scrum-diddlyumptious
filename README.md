@@ -1,37 +1,24 @@
-## Welcome to GitHub Pages
+## Welcome to scrum-diddlyumptious Page!!!
 
-You can use the [editor on GitHub](https://github.com/ryanmessett/scrum-diddlyumptious/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+We hope that you love your game of life program!
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### The Game of Life
 
-### Markdown
+The Game of Life, also known simply as Life, is a cellular automaton devised by the British mathematician John Horton Conway.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+![Alt Text](http://njohns01home.webfactional.com/wp-content/uploads/2009/05/canada_goose.gif)
 
-```markdown
-Syntax highlighted code block
 
-# Header 1
-## Header 2
-### Header 3
+## Authors
 
-- Bulleted
-- List
+* **Sang Nguyen** 
+* **James Gough** 
+* **Stuart Reilly** 
+* **Kelly Schmidt** 
+* **Ryan Messett** 
+* **Caroline Cocca** 
 
-1. Numbered
-2. List
 
-**Bold** and _Italic_ and `Code` text
+## License
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ryanmessett/scrum-diddlyumptious/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+This project is licensed("not really") under the scrum-diddlyumptious License 
