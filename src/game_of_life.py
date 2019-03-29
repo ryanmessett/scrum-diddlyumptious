@@ -2,6 +2,9 @@ __author__ = "scrum-diddlyumptious"
 
 from Tkinter import *
 
+#global variable for changing colors
+color = 'black'
+
 #Creates the menu 
 def windows_menu(root):
   
@@ -17,11 +20,32 @@ def windows_menu(root):
        button = Button(filewin, text="Ryan will implement write file function")
        button.pack()
 
+  #Skeleton code for menu buttons actions
+    def sub_menu_color():
+        filewin = Toplevel(root)
+        button = Button(filewin, text="Do nothing button")
+        button.pack()
+
    #Skeleton code for menu buttons actions
     def do_nothing():
         filewin = Toplevel(root)
         button = Button(filewin, text="Do nothing button")
         button.pack()
+
+    #change the grid color to red
+    def add_red_color():
+        global color
+        color="red"
+
+    #change the grid color to blue
+    def add_blue_color():
+        global color
+        color="blue"
+
+    #change the grid color to green
+    def add_green_color():
+        global color
+        color="green"
 
     #initialize parent menus
     menubar = Menu(root)
@@ -29,6 +53,7 @@ def windows_menu(root):
     showMenu = Menu(menubar, tearoff=0)
     actionsMenu = Menu(menubar, tearoff=0)
     speedMenu = Menu(menubar, tearoff=0)
+    sub_menu_color = Menu(menubar, tearoff=0)
 
     #first drop down menu "FILE"
     menubar.add_cascade(label="File", menu=filemenu)
@@ -55,7 +80,12 @@ def windows_menu(root):
     speedMenu.add_command(label="Show Grid", command=do_nothing)
     speedMenu.add_command(label="Faster", command=do_nothing)
     speedMenu.add_command(label="Slower", command=do_nothing)
-    speedMenu.add_command(label="Color", command=do_nothing)
+    speedMenu.add_cascade(label="Color", command=do_nothing, menu=sub_menu_color)
+
+    #calling submenu color functions
+    sub_menu_color.add_command(label="red",command=add_red_color)
+    sub_menu_color.add_command(label="blue",command=add_blue_color)
+    sub_menu_color.add_command(label="green",command=add_green_color)
 
     #Actually register and display the four menu dropdown menu
     root.config(menu=menubar)
@@ -86,7 +116,7 @@ def windows_grid(windowCanvas):
         # If the tile is not filled, create a rectangle
         # Also determines the grid color as well
         if not tiles[row][col]:
-            tiles[row][col] = windowCanvas.create_rectangle(col*col_width, row*row_height, (col+1)*col_width, (row+1)*row_height, fill="black")
+            tiles[row][col] = windowCanvas.create_rectangle(col*col_width, row*row_height, (col+1)*col_width, (row+1)*row_height, fill=color)
         
         # If the tile is filled, delete the rectangle and clear the reference
         else:
@@ -103,9 +133,15 @@ def main():
     #class alias to variable
     root = Tk()
 
+    #title of the program
+    root.title("Game of Life")
+
     #initialize window size and color
     windowCanvas = Canvas(root, width=500, height=500, borderwidth=5, background='white')
 
+    #create instructions
+    Label(root, text="Instructions: \n  CHOOSE FROM DROPDOWN MENU OR RIGHT CLICK GRID POINTS \n Left click to run one step").pack()
+    
     #creates the grid
     windows_grid(windowCanvas)
 
