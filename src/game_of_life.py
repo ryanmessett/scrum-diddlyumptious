@@ -9,6 +9,7 @@ currentGridColor = 'black' # default grid color
 storedGrid = []
 storedGridIndex = 0
 
+
 # Creates the drop down menu 
 def windows_menu(root,windowCanvas):
 
@@ -113,30 +114,30 @@ def clickable_grid(root,windowCanvas):
 		global storedGridIndex
 
 		# Get rectangle diameters
-		col_width = (windowCanvas.winfo_width())/currentColumns
-		row_height = (windowCanvas.winfo_height())/currentRows
+		columnWidth = (windowCanvas.winfo_width())/currentColumns
+		rowHeight = (windowCanvas.winfo_height())/currentRows
 
 		# Calculate column and row number
-		col = event.x//col_width
-		row = event.y//row_height
+		columnNum = event.x//columnWidth
+		rowNum = event.y//rowHeight
 
 		# stores the x,y clicked coordinates to 2d array
 		# useful for debugging for the other backend implementations
 		storedGrid.append([])
-		storedGrid[storedGridIndex].append(row)
-		storedGrid[storedGridIndex].append(col)
+		storedGrid[storedGridIndex].append(rowNum)
+		storedGrid[storedGridIndex].append(columnNum)
 		print(storedGrid) # prints the coordinates on the terminal/output
 		storedGridIndex+=1
 
 		# If the tile is not filled, create a rectangle
 		# Also sets the grid color as well
-		if not tiles[row][col]:
-			tiles[row][col] = windowCanvas.create_rectangle(col*col_width, row*row_height, (col+1)*col_width, (row+1)*row_height, fill=currentGridColor,outline='white')
+		if not tiles[rowNum][columnNum]:
+			tiles[rowNum][columnNum] = windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline='white')
 
 		# If the tile is filled, delete the rectangle and clear the reference
 		else:
-			windowCanvas.delete(tiles[row][col])
-			tiles[row][col] = None
+			windowCanvas.delete(tiles[rowNum][columnNum])
+			tiles[rowNum][columnNum] = None
 
 	# figures out how the canvas sits in the window
 	windowCanvas.pack()
