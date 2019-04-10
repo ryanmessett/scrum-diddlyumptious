@@ -3,11 +3,15 @@ __author__ = "scrum-diddlyumptious"
 from Tkinter import *
 
 # Global Variables
-currentRows = 10
-currentColumns = 10
+currentRows = 50
+currentColumns = 50
 currentGridColor = 'black' # default grid color
 storedGrid = []
 storedGridIndex = 0
+windowCanvasWidth = 500
+windowCanvasHeight = 500
+cellWidth = windowCanvasWidth / currentRows
+cellHeight = windowCanvasHeight / currentColumns
 
 
 # Creates the drop down menu 
@@ -40,19 +44,22 @@ def windows_menu(root,windowCanvas):
 	def create_grid(windowCanvas):
 		# draw horizontal lines
 		x1 = 0
-		x2 = currentRows*50
-		for k in range(0, currentRows*50, 52):
-			y1 = k
-			y2 = k
+		x2 = windowCanvasWidth+1
+		for k in range(0, currentRows):
+			y1 = k*cellHeight
+			y2 = k*cellHeight
 			windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')
 
 		# draw vertical lines
 		y1 = 0
-		y2 = currentColumns*50
-		for k in range(0, currentColumns*50, 52):
-			x1 = k
-			x2 = k
-			windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')       
+		y2 = windowCanvasHeight+1
+		for k in range(0, currentColumns):
+			x1 = k*cellWidth
+			x2 = k*cellWidth
+			windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')
+
+                #draw border around grid
+                
 
 	# initialize parent menus
 	menuBar = Menu(root)
@@ -114,8 +121,8 @@ def clickable_grid(root,windowCanvas):
 		global storedGridIndex
 
 		# Get rectangle diameters
-		columnWidth = (windowCanvas.winfo_width())/currentColumns
-		rowHeight = (windowCanvas.winfo_height())/currentRows
+		columnWidth = cellWidth
+		rowHeight = cellHeight
 
 		# Calculate column and row number
 		columnNum = event.x//columnWidth
@@ -132,7 +139,7 @@ def clickable_grid(root,windowCanvas):
 		# If the tile is not filled, create a rectangle
 		# Also sets the grid color as well
 		if not tiles[rowNum][columnNum]:
-			tiles[rowNum][columnNum] = windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline='white')
+			tiles[rowNum][columnNum] = windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline='black')
 
 		# If the tile is filled, delete the rectangle and clear the reference
 		else:
@@ -154,10 +161,10 @@ def main():
 	root.title("Game of Life")
 
 	# initialize window size and color
-	windowCanvas = Canvas(root, width=currentRows*50, height=currentColumns*50, borderwidth=currentRows, background='white')    
+	windowCanvas = Canvas(root, width=windowCanvasWidth, height=windowCanvasHeight, borderwidth=0, background='white', highlightbackground = 'black')    
 
 	# create instructions
-	Label(root, text="Instructions:\nChoose From Dropdown Menu Or Right Click Grid Points \n Left click to run one step").pack()
+	Label(root, text="Instructions:\nChoose From Dropdown Menu Or Left Click Grid Points \n Right click to run one step").pack()
 
 	# backend grid listener
 	clickable_grid(root,windowCanvas)
