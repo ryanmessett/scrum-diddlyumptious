@@ -14,26 +14,20 @@ def windows_menu(root,windowCanvas):
 
 	# Reads the file
 	def command_read_file():
-	   filewin = Toplevel(root)
-	   button = Button(filewin, text="Ryan will implement read file function")
+	   fileWin = Toplevel(root)
+	   button = Button(fileWin, text="Ryan will implement read file function")
 	   button.pack()
 
 	# Write to file
 	def command_write_file():
-	   filewin = Toplevel(root)
-	   button = Button(filewin, text="Ryan will implement write file function")
+	   fileWin = Toplevel(root)
+	   button = Button(fileWin, text="Ryan will implement write file function")
 	   button.pack()
 
    # Skeleton code for menu buttons actions
-	def sub_menu_color():
-		filewin = Toplevel(root)
-		button = Button(filewin, text="Do nothing button")
-		button.pack()
-
-   # Skeleton code for menu buttons actions
 	def do_nothing():
-		filewin = Toplevel(root)
-		button = Button(filewin, text="Do nothing button")
+		fileWin = Toplevel(root)
+		button = Button(fileWin, text="Do nothing button")
 		button.pack()
 
 	# change the grid color
@@ -60,27 +54,27 @@ def windows_menu(root,windowCanvas):
 			windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')       
 
 	# initialize parent menus
-	menubar = Menu(root)
-	filemenu = Menu(menubar, tearoff=0)
-	showMenu = Menu(menubar, tearoff=0)
-	actionsMenu = Menu(menubar, tearoff=0)
-	speedMenu = Menu(menubar, tearoff=0)
-	sub_menu_color = Menu(menubar, tearoff=0)
+	menuBar = Menu(root)
+	fileMenu = Menu(menuBar, tearoff=0)
+	showMenu = Menu(menuBar, tearoff=0)
+	actionsMenu = Menu(menuBar, tearoff=0)
+	speedMenu = Menu(menuBar, tearoff=0)
+	subMenuColor = Menu(menuBar, tearoff=0)
 
 	# first drop down menu "FILE"
-	menubar.add_cascade(label="File", menu=filemenu)
-	filemenu.add_command(label="Read File", command=command_read_file)
-	filemenu.add_command(label="Write File", command=command_write_file)
+	menuBar.add_cascade(label="File", menu=fileMenu)
+	fileMenu.add_command(label="Read File", command=command_read_file)
+	fileMenu.add_command(label="Write File", command=command_write_file)
 
 	# second drop down menu "Show"
-	menubar.add_cascade(label="Show", menu=showMenu)
+	menuBar.add_cascade(label="Show", menu=showMenu)
 	showMenu.add_command(label="Static", command=do_nothing)
 	showMenu.add_command(label="Oscillate", command=do_nothing)
 	showMenu.add_command(label="Move", command=do_nothing)
 	showMenu.add_command(label="Weird", command=do_nothing)
 
 	# third drop down menu "Actions"
-	menubar.add_cascade(label="Actions", menu=actionsMenu)
+	menuBar.add_cascade(label="Actions", menu=actionsMenu)
 	actionsMenu.add_command(label="Clear", command=do_nothing)
 	actionsMenu.add_command(label="Run", command=do_nothing)
 	actionsMenu.add_command(label="Step", command=do_nothing)
@@ -88,20 +82,20 @@ def windows_menu(root,windowCanvas):
 	actionsMenu.add_command(label="Quit", command=root.quit)
 
 	# fourth drop down menu "Grid/Speed"
-	menubar.add_cascade(label="Grid/Speed", menu=speedMenu)
+	menuBar.add_cascade(label="Grid/Speed", menu=speedMenu)
 	speedMenu.add_command(label="No Grid", command=lambda:windowCanvas.delete('grid_line'))
 	speedMenu.add_command(label="Show Grid", command=lambda: create_grid(windowCanvas))
 	speedMenu.add_command(label="Faster", command=do_nothing)
 	speedMenu.add_command(label="Slower", command=do_nothing)
-	speedMenu.add_cascade(label="Color", command=do_nothing, menu=sub_menu_color)
+	speedMenu.add_cascade(label="Color", command=do_nothing, menu=subMenuColor)
 
 	# calling submenu color functions
-	sub_menu_color.add_command(label="red",command=lambda:change_color("red"))
-	sub_menu_color.add_command(label="blue",command=lambda:change_color("blue"))
-	sub_menu_color.add_command(label="green",command=lambda:change_color("green"))
+	subMenuColor.add_command(label="red",command=lambda:change_color("red"))
+	subMenuColor.add_command(label="blue",command=lambda:change_color("blue"))
+	subMenuColor.add_command(label="green",command=lambda:change_color("green"))
 
 	# Actually register and display the four menu dropdown menu
-	root.config(menu=menubar)
+	root.config(menu=menuBar)
 
 
 # Litterly copied from this website:
