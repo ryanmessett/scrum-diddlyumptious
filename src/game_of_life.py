@@ -3,8 +3,8 @@ __author__ = "scrum-diddlyumptious"
 from Tkinter import *
 
 # Global Variables
-currentRows = 50
-currentColumns = 50
+currentRows = 10
+currentColumns = 10
 currentGridColor = 'black' # default grid color
 storedGrid = []
 storedGridIndex = 0
@@ -12,7 +12,8 @@ windowCanvasWidth = 500
 windowCanvasHeight = 500
 cellWidth = windowCanvasWidth / currentRows
 cellHeight = windowCanvasHeight / currentColumns
-
+stepNum = 0
+lifeNum = 0
 
 # Creates the drop down menu 
 def windows_menu(root,windowCanvas):
@@ -58,8 +59,17 @@ def windows_menu(root,windowCanvas):
 			x2 = k*cellWidth
 			windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')
 
-                #draw border around grid
-                
+	def step_counter():
+		global stepNum
+		stepNum+=1
+		stepCounterLabel = Label(root, text=stepNum)
+		stepCounterLabel.place(x=85, y=1) 
+
+	def life_counter():
+		global lifeNum
+		lifeNum+=1
+		lifeCounterLabel = Label(root, text=lifeNum)
+		lifeCounterLabel.place(x=windowCanvasWidth-35, y=1)            
 
 	# initialize parent menus
 	menuBar = Menu(root)
@@ -84,8 +94,8 @@ def windows_menu(root,windowCanvas):
 	# third drop down menu "Actions"
 	menuBar.add_cascade(label="Actions", menu=actionsMenu)
 	actionsMenu.add_command(label="Clear", command=do_nothing)
-	actionsMenu.add_command(label="Run", command=do_nothing)
-	actionsMenu.add_command(label="Step", command=do_nothing)
+	actionsMenu.add_command(label="Run", command=life_counter)
+	actionsMenu.add_command(label="Step", command=step_counter)
 	actionsMenu.add_command(label="Stop", command=do_nothing)
 	actionsMenu.add_command(label="Quit", command=root.quit)
 
@@ -165,6 +175,12 @@ def main():
 
 	# create instructions
 	Label(root, text="Instructions:\nChoose From Dropdown Menu Or Left Click Grid Points \n Right click to run one step").pack()
+
+	#Displaying step counter
+	Label(root, text="Step Count: ").place(x=0, y=1)
+
+	#Displaying life counter
+	Label(root, text="Life Count: ").place(x=windowCanvasWidth-120, y=1)
 
 	# backend grid listener
 	clickable_grid(root,windowCanvas)
