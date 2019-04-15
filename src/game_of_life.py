@@ -1,6 +1,7 @@
 __author__ = "scrum-diddlyumptious"
 
 from Tkinter import *
+import pandas as pd
 
 # Global Variables
 currentRows = 10
@@ -14,9 +15,15 @@ cellWidth = windowCanvasWidth / currentRows
 cellHeight = windowCanvasHeight / currentColumns
 stepNum = 0
 lifeNum = 0
+running = False
+colors = ['black', 'blue', 'red', 'green']
+tiles = [[None for _ in range(currentRows)] for _ in range(currentColumns)]
+data = {'color' : '',
+        'pos': []}
+df = pd.DataFrame(data)
 
 # Creates the drop down menu 
-def windows_menu(root,windowCanvas):
+def windows_menu(root,windowCanvas, e):
 
 	# Reads the file
 	def command_read_file():
@@ -59,18 +66,8 @@ def windows_menu(root,windowCanvas):
 			x2 = k*cellWidth
 			windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')
 
-	def step_counter():
-		global stepNum
-		stepNum+=1
-		stepCounterLabel = Label(root, text=stepNum)
-		stepCounterLabel.place(x=85, y=1) 
-
-	def life_counter():
-		global lifeNum
-		lifeNum+=1
-		lifeCounterLabel = Label(root, text=lifeNum)
-		lifeCounterLabel.place(x=windowCanvasWidth-35, y=1)            
-
+	
+	
 	# initialize parent menus
 	menuBar = Menu(root)
 	fileMenu = Menu(menuBar, tearoff=0)
@@ -94,8 +91,8 @@ def windows_menu(root,windowCanvas):
 	# third drop down menu "Actions"
 	menuBar.add_cascade(label="Actions", menu=actionsMenu)
 	actionsMenu.add_command(label="Clear", command=do_nothing)
-	actionsMenu.add_command(label="Run", command=life_counter)
-	actionsMenu.add_command(label="Step", command=step_counter)
+	actionsMenu.add_command(label="Run", command=lambda:run(df, windowCanvas, root, e))
+	actionsMenu.add_command(label="Step", command=lambda:refresh_life(df, windowCanvas, root))
 	actionsMenu.add_command(label="Stop", command=do_nothing)
 	actionsMenu.add_command(label="Quit", command=root.quit)
 
@@ -115,13 +112,25 @@ def windows_menu(root,windowCanvas):
 	# Actually register and display the four menu dropdown menu
 	root.config(menu=menuBar)
 
+def step_counter(root):
+       	global stepNum
+       	stepNum+=1
+       	stepCounterLabel = Label(root, text=stepNum)
+       	stepCounterLabel.place(x=85, y=1)
+
+def life_counter(root):
+	global lifeNum
+        global df
+	lifeNum = len(df['pos'].tolist())
+	lifeCounterLabel = Label(root, text=lifeNum)
+	lifeCounterLabel.place(x=windowCanvasWidth-35, y=1)            
 
 # Litterly copied from this website:
 # https://stackoverflow.com/questions/26988204/using-2d-array-to-create-clickable-tkinter-canvas
 def clickable_grid(root,windowCanvas):
 
 	# Create a grid of None to store the references to the tiles
-	tiles = [[None for _ in range(currentColumns)] for _ in range(currentRows)]
+	global df
 
 	# Asynchronous listener
 	# This is acutally the backend of the clickable grid
@@ -138,27 +147,166 @@ def clickable_grid(root,windowCanvas):
 		columnNum = event.x//columnWidth
 		rowNum = event.y//rowHeight
 
-		# stores the x,y clicked coordinates to 2d array
-		# useful for debugging for the other backend implementations
-		storedGrid.append([])
-		storedGrid[storedGridIndex].append(rowNum)
-		storedGrid[storedGridIndex].append(columnNum)
-		print(storedGrid) # prints the coordinates on the terminal/output
-		storedGridIndex+=1
-
+	
 		# If the tile is not filled, create a rectangle
 		# Also sets the grid color as well
 		if not tiles[rowNum][columnNum]:
-			tiles[rowNum][columnNum] = windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline='black')
+			tiles[rowNum][columnNum] = windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline=currentGridColor)
+                        storedGrid.append([])
+		        storedGrid[storedGridIndex].append(columnNum)
+		        storedGrid[storedGridIndex].append(rowNum)
+                        print('index: ',storedGridIndex)
+                        df.loc[storedGridIndex] = [currentGridColor, [columnNum, rowNum]]
+		
+		        storedGridIndex+=1
 
 		# If the tile is filled, delete the rectangle and clear the reference
 		else:
+                        drop = df['pos'].tolist().index([columnNum, rowNum])
 			windowCanvas.delete(tiles[rowNum][columnNum])
 			tiles[rowNum][columnNum] = None
+                        del storedGrid[storedGrid.index([columnNum, rowNum])]
+                        df.drop(index=drop, inplace=True)
+                        storedGridIndex-=1
+                        
 
+                life_counter(root)
+                print(storedGrid) # prints the coordinates on the terminal/output
+                #print(df)
 	# figures out how the canvas sits in the window
 	windowCanvas.pack()
 	windowCanvas.bind("<Button-1>", callback)
+
+        
+def run(df, windowCanvas, root, e):
+        global running
+        if(running == False):
+                running = True
+
+        if(running):
+                refresh_life(df, windowCanvas, root)
+                root.update()
+                root.after(1000, lambda:run(df, windowCanvas, root, e))
+        
+        
+        
+#refesh life function
+#takes in the pandas dataframe as a parameter and determines whether the cells on the grid live or die
+def refresh_life(df, windowCanvas, root):
+        nextGrid = []
+        
+        global storedGrid
+        col = []
+        step_counter(root)
+
+        
+        
+        #loop over all the cells in the grid
+        for i in range(0, currentColumns):
+                for j in range(0, currentRows):
+                        cellColor = 'white'
+                        
+                        index = {
+                                'left':currentColumns-1 if (i-1)<0 else i-1, #left
+                                'right':(i+1)%currentColumns,                #right
+                                'up':currentRows-1 if (j-1)<0 else j-1,        #up
+                                'down':(j+1)%currentRows                     #down
+                        }
+                        #count the number of neighbors for the cell
+                        neighborList = [
+                                1 if [index['left'], index['up']] in df['pos'].tolist() else 0,   #top left
+                                1 if [i, index['up']] in storedGrid else 0,            #top mid
+                                1 if [index['right'], index['up']] in df['pos'].tolist() else 0,  #top right
+                                1 if [index['right'], j] in storedGrid else 0,         #mid right
+                                1 if [index['right'], index['down']] in df['pos'].tolist() else 0,#bottom right
+                                1 if [i, index['down']] in storedGrid else 0,          #mid bottom
+                                1 if [index['left'], index['down']] in df['pos'].tolist() else 0, #bottom left
+                                1 if [index['left'], j] in storedGrid else 0           #mid left
+                        ]
+
+                        numNeighbors = sum(neighborList)
+                        
+                        #Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+                        #if [i, j] in df.pos and numNeighbors < 2:
+                                #do nothing
+                        #Any live cell with two or three live neighbours lives on to the next generation.
+                        if [i, j] in df['pos'].tolist() and (numNeighbors == 2 or numNeighbors == 3):
+                                nextGrid.append([i,j])
+                                print(df['pos'].tolist().index([i,j]))
+                                col.append(df['color'].tolist()[df['pos'].tolist().index([i,j])])
+                        #Any live cell with more than three live neighbours dies, as if by overpopulation.
+                        #if [i, j] in df.pos and numNeighbors < 2:
+                        #Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+                        if [i, j] not in df['pos'].tolist() and numNeighbors == 3:
+                                nextGrid.append([i, j])
+                                
+                                if [index['left'], index['up']] in df['pos'].tolist():
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([index['left'],index['up']])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([index['left'],index['up']])])
+                                elif [i, index['up']] in df['pos'].tolist():            #top mid
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([i,index['up']])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([i,index['up']])])
+                                elif [index['right'], index['up']] in df['pos'].tolist():  #top right
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([index['right'],index['up']])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([index['right'],index['up']])])
+                                elif [index['right'], j] in df['pos'].tolist():         #mid right
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([index['right'],j])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([index['right'],j])])
+                                elif [index['right'], index['down']] in df['pos'].tolist(): #bottom right
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([index['right'],index['down']])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([index['right'],index['down']])])
+                                elif [i, index['down']] in df['pos'].tolist():          #mid bottom
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([i,index['down']])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([i,index['down']])])
+                                elif [index['left'], index['down']] in df['pos'].tolist(): #bottom left
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([index['left'],index['down']])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([index['left'],index['down']])])
+                                elif [index['left'], j] in df['pos']:           #mid left
+                                        currentGridColor = (df['color'].tolist()[df['pos'].tolist().index([index['left'],j])])
+                                        col.append(df['color'].tolist()[df['pos'].tolist().index([index['left'],j])])
+                                else:
+                                        currentGridColor = ('white')
+
+        global storedGridIndex
+        del storedGrid[:]
+        
+        
+        storedGrid = nextGrid[:]
+        
+        df.drop(df.index[0:storedGridIndex], inplace=True)
+        storedGridIndex = len(nextGrid)
+        print('new dataframe:')
+        print(df)
+        #df['pos'] = nextGrid
+        #df['color'] = col
+        for i in range(0, storedGridIndex):
+                df.loc[i] = [col[i], nextGrid[i]]
+
+        
+        for i in range(0, currentColumns):
+                for j in range(0, currentRows):
+                        # Get rectangle diameters
+	                columnWidth = cellWidth
+	                rowHeight = cellHeight
+                        
+	                # Calculate column and row number
+	                columnNum = i
+	                rowNum = j
+
+                        currentGridColor = 'white' if [i,j] not in df['pos'].tolist() else df['color'].tolist()[df['pos'].tolist().index([i,j])]
+        
+                                        
+		        # If the tile is not filled, create a rectangle
+		        # Also sets the grid color as well
+		        if not tiles[rowNum][columnNum] and [i,j] in nextGrid:
+			        tiles[rowNum][columnNum] = windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline = currentGridColor)
+
+		                # If the tile is filled, delete the rectangle and clear the reference
+		        if (tiles[rowNum][columnNum] != None and [i,j] not in nextGrid):
+                                windowCanvas.delete(tiles[rowNum][columnNum])
+			        tiles[rowNum][columnNum] = None
+                                
+        life_counter(root)
 
 
 # Main function
@@ -169,7 +317,7 @@ def main():
 
 	# title of the program
 	root.title("Game of Life")
-
+        e = Entry(root)
 	# initialize window size and color
 	windowCanvas = Canvas(root, width=windowCanvasWidth, height=windowCanvasHeight, borderwidth=0, background='white', highlightbackground = 'black')    
 
@@ -186,7 +334,7 @@ def main():
 	clickable_grid(root,windowCanvas)
 
 	# creates the menu
-	windows_menu(root,windowCanvas)
+	windows_menu(root,windowCanvas, e)
 
 	# the pack geometry manager organises widgets in horizontal and vertical boxes
 	windowCanvas.pack()
