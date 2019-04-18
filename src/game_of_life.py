@@ -2,10 +2,11 @@ __author__ = "scrum-diddlyumptious"
 
 from Tkinter import *
 import pandas as pd
+import time
 
 # Global Variables
-currentRows = 10
-currentColumns = 10
+currentRows = 50
+currentColumns = 50
 currentGridColor = 'black' # default grid color
 storedGrid = []
 storedGridIndex = 0
@@ -21,6 +22,7 @@ tiles = [[None for _ in range(currentRows)] for _ in range(currentColumns)]
 data = {'color' : '',
         'pos': []}
 df = pd.DataFrame(data)
+waitTime = 1.0 #start with 1 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
 
 # Creates the drop down menu 
 def windows_menu(root,windowCanvas, e):
@@ -187,8 +189,16 @@ def run(df, windowCanvas, root, e):
                 refresh_life(df, windowCanvas, root)
                 root.update()
                 root.after(1000, lambda:run(df, windowCanvas, root, e))
+
+def check_stable(df, dfTwoAgo): #takes dataframe from 2 iterations ago to compare to the current frame
         
-        
+
+def pause_game():
+    running = False
+    
+def change_speed(factor): #factor = 2 to slow down, 0.5 to speedup
+    if(factor > 0):
+        waitTime *= factor
         
 #refesh life function
 #takes in the pandas dataframe as a parameter and determines whether the cells on the grid live or die
