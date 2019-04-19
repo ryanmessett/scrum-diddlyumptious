@@ -22,9 +22,17 @@ tiles = [[None for _ in range(currentRows)] for _ in range(currentColumns)]
 data = {'color' : '',
         'pos': []}
 df = pd.DataFrame(data)
+dfPrev = pd.DataFrame(data)
+df2Prev = pd.DataFrame(data)
+
+#global constants added for readability
+FIRST_ITERATION = 1
+SECOND_ITERATION = 2
+STABILITY_CHECK_ITERATION = 3
+
 waitTime = 1.0 #start with 1 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
 
-# Creates the drop down menu 
+# Creates the drop down menu
 def windows_menu(root,windowCanvas, e):
 
 	# Reads the file
@@ -184,14 +192,33 @@ def run(df, windowCanvas, root, e):
         global running
         if(running == False):
                 running = True
+                iterationCount = 1 #use this to know when every 3rd iteration comes bc then it is time to do a stability check
+                runLoop(df, windowCanvas, root, e, iterationCount) #triggers running loop
 
-        if(running):
+def runLoop(df, windowCanvas, root, e, iterationCount): #added this so run function can enter an endless loop that only exits when global variable is modified
+    if(running):
                 refresh_life(df, windowCanvas, root)
+                if(iterationCount == FIRST_ITERATION):
+                    df2Prev = df #first df to record is for 2 iterations ago
+                    iterationCount += 1
+                elif(iterationCount == SECOND_ITERATION):
+                    dfPrev = df #now record the 'most recent' df iteration second
+                    iterationCount += 1
+                elif(iterationCount == STABILITY_CHECK_ITERATION):
+                    #now its time to check for stability, then reset counter
+                    if(check_stable(df, df2Prev)):
+                        #(insert code here to set GUI's stable notification to visible)
+                        print("(insert code here to set GUI's stable notification to visible)")
+                    else:
+                        #(and insert code here to set GUI's stable notification to invisible)
+                        print("(insert code here to set GUI's stable notification to invisible)")
+                    iterationCount = FIRST_ITERATION #reset counter
                 root.update()
-                root.after(1000, lambda:run(df, windowCanvas, root, e))
+                root.after(waitTime, lambda:runLoop(df, windowCanvas, root, e, iterationCount)) #recursively calls itself
 
-def check_stable(df, dfTwoAgo): #takes dataframe from 2 iterations ago to compare to the current frame
-        
+
+def check_stable(): #takes dataframe from 2 iterations ago to compare to the current frame
+      return df.equals(df2Prev)
 
 def pause_game():
     running = False
