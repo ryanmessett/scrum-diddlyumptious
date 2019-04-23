@@ -26,11 +26,11 @@ dfPrev = pd.DataFrame(data)
 df2Prev = pd.DataFrame(data)
 
 #global constants added for readability
-FIRST_ITERATION = 1
-SECOND_ITERATION = 2
-STABILITY_CHECK_ITERATION = 3
+FIRST_ITERATION = int(1)
+SECOND_ITERATION = int(2)
+STABILITY_CHECK_ITERATION = int(3)
 
-waitTime = 1.0 #start with 1 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
+waitTime = 1000 #start with 1 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
 
 # Creates the drop down menu
 def windows_menu(root,windowCanvas, e):
@@ -190,7 +190,7 @@ def run(df, windowCanvas, root, e):
         global running
         if(running == False):
                 running = True
-                iterationCount = 1 #use this to know when every 3rd iteration comes bc then it is time to do a stability check
+                iterationCount = int(1) #use this to know when every 3rd iteration comes bc then it is time to do a stability check
                 runLoop(df, windowCanvas, root, e, iterationCount) #triggers running loop
 
 def runLoop(df, windowCanvas, root, e, iterationCount): #added this so run function can enter an endless loop that only exits when global variable is modified
