@@ -76,8 +76,6 @@ def windows_menu(root,windowCanvas, e):
                         x2 = k*cellWidth
                         windowCanvas.create_line(x1, y1, x2, y2, tag='grid_line')
 
-	
-	
 	# initialize parent menus
         menuBar = Menu(root)
         fileMenu = Menu(menuBar, tearoff=0)
@@ -103,15 +101,15 @@ def windows_menu(root,windowCanvas, e):
         actionsMenu.add_command(label="Clear", command=do_nothing)
         actionsMenu.add_command(label="Run", command=lambda:run(df, windowCanvas, root, e))
         actionsMenu.add_command(label="Step", command=lambda:refresh_life(df, windowCanvas, root))
-        actionsMenu.add_command(label="Stop", command=do_nothing)
+        actionsMenu.add_command(label="Stop", command=lambda:pause_game())
         actionsMenu.add_command(label="Quit", command=root.quit)
 
 	# fourth drop down menu "Grid/Speed"
         menuBar.add_cascade(label="Grid/Speed", menu=speedMenu)
         speedMenu.add_command(label="No Grid", command=lambda:windowCanvas.delete('grid_line'))
         speedMenu.add_command(label="Show Grid", command=lambda: create_grid(windowCanvas))
-        speedMenu.add_command(label="Faster", command=do_nothing)
-        speedMenu.add_command(label="Slower", command=do_nothing)
+        speedMenu.add_command(label="Faster", command=lambda:change_speed(0.5)) #multiplying wait time by 0.5 decreases wait time between steps in run()
+        speedMenu.add_command(label="Slower", command=lambda:change_speed(2)) #multiplying wait time by 2 doubles the wait time, giving a slower effect
         speedMenu.add_cascade(label="Color", command=do_nothing, menu=subMenuColor)
 
 	# calling submenu color functions
@@ -155,8 +153,7 @@ def clickable_grid(root,windowCanvas):
 		# Calculate column and row number
                 columnNum = event.x//columnWidth
                 rowNum = event.y//rowHeight
-
-	
+                
 		# If the tile is not filled, create a rectangle
 		# Also sets the grid color as well
                 if not tiles[rowNum][columnNum]:
@@ -184,7 +181,6 @@ def clickable_grid(root,windowCanvas):
 	# figures out how the canvas sits in the window
         windowCanvas.pack()
         windowCanvas.bind("<Button-1>", callback)
-
         
 def run(df, windowCanvas, root, e):
         global running
@@ -194,36 +190,52 @@ def run(df, windowCanvas, root, e):
                 runLoop(df, windowCanvas, root, e, iterationCount) #triggers running loop
 
 def runLoop(df, windowCanvas, root, e, iterationCount): #added this so run function can enter an endless loop that only exits when global variable is modified
+        global running
+        global dfPrev
+        global df2Prev
+        global FIRST_ITERATION
+        global SECOND_ITERATION
+        global STABILITY_CHECK_ITERATION
         if(running):
                 refresh_life(df, windowCanvas, root)
                 if(iterationCount == FIRST_ITERATION):
-                        df2Prev = df #first df to record is for 2 iterations ago
+                        df2Prev = df.copy() #first df to record is for 2 iterations ago
                         iterationCount += 1
                 elif(iterationCount == SECOND_ITERATION):
-                        dfPrev = df #now record the 'most recent' df iteration second
+                        dfPrev = df.copy() #now record the 'most recent' df iteration second
                         iterationCount += 1
                 elif(iterationCount == STABILITY_CHECK_ITERATION):
                     #now its time to check for stability, then reset counter
-                        if(check_stable(df, df2Prev)):
+                        if(check_stable(df)):
                         #(insert code here to set GUI's stable notification to visible)
-                                print("(insert code here to set GUI's stable notification to visible)")
+                            stableLabel = Label(root, text = "Stable")
+                            stableLabel.place(x=0, y=25)
                         else:
                         #(and insert code here to set GUI's stable notification to invisible)
-                                print("(insert code here to set GUI's stable notification to invisible)")
-                iterationCount = FIRST_ITERATION #reset counter
+                            stableLabel = Label(root, text = "               ")
+                            stableLabel.place(x=0, y=25)
+                        iterationCount = FIRST_ITERATION #reset counter
                 root.update()
                 root.after(waitTime, lambda:runLoop(df, windowCanvas, root, e, iterationCount)) #recursively calls itself
 
 
-def check_stable(): #takes dataframe from 2 iterations ago to compare to the current frame
-      return df.equals(df2Prev)
+def check_stable(df): #takes dataframe from 2 iterations ago to compare to the current frame
+    global df2Prev
+    return df.equals(df2Prev)
 
 def pause_game():
+    global running
     running = False
     
 def change_speed(factor): #factor = 2 to slow down, 0.5 to speedup
-    if(factor > 0):
+    global waitTime
+    if(factor > 1):
         waitTime *= factor
+    elif (factor > 0 and factor < 1):
+        dividend = 1 / factor #converting fraction to an integer to divide by bc tkinter.after requires int
+        dividend = int(dividend)
+        result = waitTime / dividend #waitTime must stay int at all times, since we are working with threads
+        waitTime = int(result)
         
 #refesh life function
 #takes in the pandas dataframe as a parameter and determines whether the cells on the grid live or die
