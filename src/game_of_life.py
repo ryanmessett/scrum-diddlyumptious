@@ -3,6 +3,7 @@ __author__ = "scrum-diddlyumptious"
 from tkinter import *
 import pandas as pd
 import time
+import csv
 
 # Global Variables
 currentRows = 50
@@ -86,8 +87,8 @@ def windows_menu(root,windowCanvas, e):
 
 	# first drop down menu "FILE"
         menuBar.add_cascade(label="File", menu=fileMenu)
-        fileMenu.add_command(label="Read File", command=command_read_file)
-        fileMenu.add_command(label="Write File", command=command_write_file)
+        fileMenu.add_command(label="Read File", command=lambda:load_game(root, windowCanvas))#command=command_read_file)
+        fileMenu.add_command(label="Write File", command=lambda:save_game())#command=command_write_file)
 
 	# second drop down menu "Show"
         menuBar.add_cascade(label="Show", menu=showMenu)
@@ -98,7 +99,7 @@ def windows_menu(root,windowCanvas, e):
 
 	# third drop down menu "Actions"
         menuBar.add_cascade(label="Actions", menu=actionsMenu)
-        actionsMenu.add_command(label="Clear", command=do_nothing)
+        actionsMenu.add_command(label="Clear", command=lambda:clear_game(root, windowCanvas))#command=do_nothing)
         actionsMenu.add_command(label="Run", command=lambda:run(df, windowCanvas, root, e))
         actionsMenu.add_command(label="Step", command=lambda:refresh_life(df, windowCanvas, root))
         actionsMenu.add_command(label="Stop", command=lambda:pause_game())
@@ -131,7 +132,79 @@ def life_counter(root):
         global df
         lifeNum = len(df['pos'].tolist())
         lifeCounterLabel = Label(root, text=lifeNum)
-        lifeCounterLabel.place(x=windowCanvasWidth-35, y=1)             
+        lifeCounterLabel.place(x=windowCanvasWidth-35, y=1)
+def save_game():
+        global df
+        global dfPrev
+        global df2Prev
+        global lifeNum
+        global stepNum
+        global waitTime
+        #insert input box for asking for filename
+        with open('savegame.csv', mode='a', newline='') as f:
+                fw = csv.writer(f,delimiter=',')
+                fw.writerow([lifeNum, stepNum, waitTime])
+                fw.writerow([len(df),len(dfPrev),len(df2Prev)])
+                df.to_csv(f,header=False)
+                dfPrev.to_csv(f,header=False)
+                df2Prev.to_csv(f,header=False)
+def load_game(root, windowCanvas):
+        global df
+        global data
+        global dfPrev
+        global df2Prev
+        global lifeNum
+        global stepNum
+        global storedGridIndex
+        global currentGridColor
+        global waitTime
+        global tiles
+        global storedGrid
+        clear_game(root, windowCanvas)
+        with open('savegame.csv', mode='r') as f:
+                fr = csv.reader(f,delimiter=',')
+                row1 = next(fr)
+                row2 = next(fr)
+                df = pd.read_csv('savegame.csv', skiprows=2, names=data,header=None,nrows=int(row2[0]))
+                dfPrev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0]), names=data, header=None, nrows=int(row2[1]))
+                df2Prev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0])+int(row2[1]),names=data, header=None, nrows=int(row2[2]))
+                storedGridIndex = len(df)-1
+                storedGrid = df['pos']
+                storedGrid = [eval(x) for x in storedGrid]
+                for i in range(0, len(storedGrid)-1):
+                        tiles[storedGrid[i][0]][storedGrid[i][1]] = [windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline=currentGridColor)]
+        if(check_stable(df)):
+                stableLabel = Label(root, text = "Stable")
+                stableLabel.place(x=0, y=25)
+        #need to add option to load from name and use variable in readcsv
+        #need to add option to save to specific file name and error check filename in save_game
+def clear_game(root, windowCanvas):
+        global df
+        global data
+        global dfPrev
+        global df2Prev
+        global lifeNum
+        global stepNum
+        global storedGridIndex
+        global currentGridColor
+        global waitTime
+        global tiles
+        global storedGrid
+        del df
+        del dfPrev
+        del df2Prev
+        for i in range(0, len(storedGrid)-1):
+                windowCanvas.delete(tiles[rowNum][columnNum])
+        del storedGrid
+        waitTime = 1000
+        stepNum = 0
+        lifeNum = 0
+        storedGridIndex = 0
+        df = pd.DataFrame(data)
+        dfPrev = pd.DataFrame(data)
+        df2Prev = pd.DataFrame(data)
+        tiles = [[None for _ in range(currentRows)] for _ in range(currentColumns)]
+        storedGrid = []
 # Litterly copied from this website:
 # https://stackoverflow.com/questions/26988204/using-2d-array-to-create-clickable-tkinter-canvas
 def clickable_grid(root,windowCanvas):
@@ -352,7 +425,6 @@ def refresh_life(df, windowCanvas, root):
                                 tiles[rowNum][columnNum] = None
                                 
         life_counter(root)
-
 
 # Main function
 def main():
