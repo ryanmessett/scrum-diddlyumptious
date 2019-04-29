@@ -178,11 +178,9 @@ def load_game(root, windowCanvas):
                 storedGridIndex = len(df)-1
                 storedGrid = df['pos']
                 storedGrid = [eval(x) for x in storedGrid]
-                #del storedGrid[len(storedGrid)-1]
-                print('sg: ', storedGrid)
-                print('pf: ', df)
-                for i in range(0, len(storedGrid)-1):
-                        tiles[storedGrid[i][0]][storedGrid[i][1]] = windowCanvas.create_rectangle(storedGrid[i][0]*cellHeight, storedGrid[i][1]*cellWidth, (storedGrid[i][0]+1)*cellHeight, (storedGrid[i][1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)
+
+                for coordinates in storedGrid:
+                        tiles[coordinates[0]][coordinates[1]] = windowCanvas.create_rectangle(coordinates[0]*cellHeight, coordinates[1]*cellWidth, (coordinates[0]+1)*cellHeight, (coordinates[1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)
         if(check_stable(df)):
                 stableLabel = Label(root, text = "Stable")
                 stableLabel.place(x=0, y=25)
