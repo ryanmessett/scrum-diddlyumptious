@@ -141,9 +141,11 @@ def save_game():
         global stepNum
         global waitTime
         #insert input box for asking for filename
-        with open('savegame.csv', mode='a', newline='') as f:
+        with open('savegame.csv', mode='w', newline='') as f:
                 fw = csv.writer(f,delimiter=',')
                 fw.writerow([lifeNum, stepNum, waitTime])
+        with open('savegame.csv', mode='a', newline='') as f:
+                fw = csv.writer(f, delimiter=',')
                 fw.writerow([len(df),len(dfPrev),len(df2Prev)])
                 df.to_csv(f,header=False)
                 dfPrev.to_csv(f,header=False)
@@ -171,8 +173,9 @@ def load_game(root, windowCanvas):
                 storedGridIndex = len(df)-1
                 storedGrid = df['pos']
                 storedGrid = [eval(x) for x in storedGrid]
+                del storedGrid[len(storedGrid)-1]
                 for i in range(0, len(storedGrid)-1):
-                        tiles[storedGrid[i][0]][storedGrid[i][1]] = [windowCanvas.create_rectangle(columnNum*columnWidth, rowNum*rowHeight, (columnNum+1)*columnWidth, (rowNum+1)*rowHeight, fill=currentGridColor,outline=currentGridColor)]
+                        tiles[storedGrid[i][0]][storedGrid[i][1]] = [windowCanvas.create_rectangle(storedGrid[i][1]*cellWidth, storedGrid[i][0]*cellHeight, (storedGrid[i][1]+1)*cellWidth, (storedGrid[i][0]+1)*cellHeight, fill=currentGridColor,outline=currentGridColor)]
         if(check_stable(df)):
                 stableLabel = Label(root, text = "Stable")
                 stableLabel.place(x=0, y=25)
@@ -193,8 +196,10 @@ def clear_game(root, windowCanvas):
         del df
         del dfPrev
         del df2Prev
-        for i in range(0, len(storedGrid)-1):
-                windowCanvas.delete(tiles[rowNum][columnNum])
+        for i in range(0, len(tiles)-1):
+                for x in range(0, len(tiles[0])-1):
+                        if tiles[i][x] != None:
+                                windowCanvas.delete(tiles[i][x])
         del storedGrid
         waitTime = 1000
         stepNum = 0
