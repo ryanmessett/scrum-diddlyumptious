@@ -168,6 +168,9 @@ def load_game(root, windowCanvas):
         with open('savegame.csv', mode='r') as f:
                 fr = csv.reader(f,delimiter=',')
                 row1 = next(fr)
+                lifeNum = row1[0]
+                stepNum = row1[1]
+                waitTime = row1[2]
                 row2 = next(fr)
                 df = pd.read_csv('savegame.csv', skiprows=2, names=data,header=None,nrows=int(row2[0]))
                 dfPrev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0]), names=data, header=None, nrows=int(row2[1]))
@@ -175,7 +178,9 @@ def load_game(root, windowCanvas):
                 storedGridIndex = len(df)-1
                 storedGrid = df['pos']
                 storedGrid = [eval(x) for x in storedGrid]
-                del storedGrid[len(storedGrid)-1]
+                #del storedGrid[len(storedGrid)-1]
+                print('sg: ', storedGrid)
+                print('pf: ', df)
                 for i in range(0, len(storedGrid)-1):
                         tiles[storedGrid[i][0]][storedGrid[i][1]] = windowCanvas.create_rectangle(storedGrid[i][0]*cellHeight, storedGrid[i][1]*cellWidth, (storedGrid[i][0]+1)*cellHeight, (storedGrid[i][1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)
         if(check_stable(df)):
