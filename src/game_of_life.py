@@ -1,6 +1,6 @@
 __author__ = "scrum-diddlyumptious"
 
-from tkinter import *
+from Tkinter import *
 import pandas as pd
 import time
 import csv
@@ -175,7 +175,7 @@ def load_game(root, windowCanvas):
                 df = pd.read_csv('savegame.csv', skiprows=2, names=data,header=None,nrows=int(row2[0]))
                 dfPrev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0]), names=data, header=None, nrows=int(row2[1]))
                 df2Prev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0])+int(row2[1]),names=data, header=None, nrows=int(row2[2]))
-                storedGridIndex = len(df)-1
+                storedGridIndex = len(df)
                 storedGrid = df['pos']
                 storedGrid = [eval(x) for x in storedGrid]
 
@@ -219,15 +219,14 @@ def clear_game(root, windowCanvas):
 # https://stackoverflow.com/questions/26988204/using-2d-array-to-create-clickable-tkinter-canvas
 def clickable_grid(root,windowCanvas):
 
-	# Create a grid of None to store the references to the tiles
-        global df
-
+	
 	# Asynchronous listener
 	# This is acutally the backend of the clickable grid
         def callback(event):
 
 		# Storing and retrieving the grid length
                 global storedGridIndex
+                global df
 
 		# Get rectangle diameters
                 columnWidth = cellWidth
@@ -244,22 +243,24 @@ def clickable_grid(root,windowCanvas):
                         storedGrid.append([])
                         storedGrid[storedGridIndex].append(columnNum)
                         storedGrid[storedGridIndex].append(rowNum)
-                        print('index: ',storedGridIndex)
+                        #print('index: ',storedGridIndex)
                         df.loc[storedGridIndex] = [currentGridColor, [columnNum, rowNum]]
                         storedGridIndex+=1
 
 		# If the tile is filled, delete the rectangle and clear the reference
                 else:
                         drop = df['pos'].tolist().index([columnNum, rowNum])
+                        print(drop)
                         windowCanvas.delete(tiles[rowNum][columnNum])
                         tiles[rowNum][columnNum] = None
                         del storedGrid[storedGrid.index([columnNum, rowNum])]
                         df.drop(index=drop, inplace=True)
+                        df = df.reset_index(drop=True)
                         storedGridIndex-=1
                         
 
                 life_counter(root)
-                print(storedGrid) # prints the coordinates on the terminal/output
+                #print(storedGrid) # prints the coordinates on the terminal/output
                 #print(df)
 	# figures out how the canvas sits in the window
         windowCanvas.pack()
@@ -362,7 +363,7 @@ def refresh_life(df, windowCanvas, root):
                         #Any live cell with two or three live neighbours lives on to the next generation.
                         if [i, j] in df['pos'].tolist() and (numNeighbors == 2 or numNeighbors == 3):
                                 nextGrid.append([i,j])
-                                print(df['pos'].tolist().index([i,j]))
+                                #print(df['pos'].tolist().index([i,j]))
                                 col.append(df['color'].tolist()[df['pos'].tolist().index([i,j])])
                         #Any live cell with more than three live neighbours dies, as if by overpopulation.
                         #if [i, j] in df.pos and numNeighbors < 2:
@@ -405,8 +406,8 @@ def refresh_life(df, windowCanvas, root):
         
         df.drop(df.index[0:storedGridIndex], inplace=True)
         storedGridIndex = len(nextGrid)
-        print('new dataframe:')
-        print(df)
+        #print('new dataframe:')
+        #print(df)
         #df['pos'] = nextGrid
         #df['color'] = col
         for i in range(0, storedGridIndex):
