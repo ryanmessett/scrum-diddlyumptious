@@ -293,11 +293,11 @@ def runLoop(df, windowCanvas, root, e, iterationCount): #added this so run funct
                         if(check_stable(df)):
                         #(insert code here to set GUI's stable notification to visible)
                             stableLabel = Label(root, text = "Stable")
-                            stableLabel.place(x=0, y=25)
+                            stableLabel.place(x=0, y=17)
                         else:
                         #(and insert code here to set GUI's stable notification to invisible)
                             stableLabel = Label(root, text = "               ")
-                            stableLabel.place(x=0, y=25)
+                            stableLabel.place(x=0, y=17)
                         iterationCount = FIRST_ITERATION #reset counter
                 root.update()
                 root.after(waitTime, lambda:runLoop(df, windowCanvas, root, e, iterationCount)) #recursively calls itself
