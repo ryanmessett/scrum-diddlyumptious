@@ -6,6 +6,10 @@ import time
 import csv
 
 # Global Variables
+beeHive = [[22, 16], [23, 16], [24, 17], [23, 18], [22, 18], [21, 17]]
+weird = [[10, 11], [11, 10], [11, 11], [11, 12], [12, 10], [30, 30], [30, 31], [30, 34], [31, 30], [31, 33], [32, 30], [32, 33], [32, 34], [34, 30], [34, 32], [34, 33], [34, 34], [35, 32]]
+beacon = [[20, 19], [21, 19], [21, 20], [20, 20], [22, 21], [23, 21], [23, 22], [22, 22]]
+glider = [[1, 2], [2, 2], [3, 2], [3, 1], [2, 0]]
 currentRows = 50
 currentColumns = 50
 currentGridColor = 'black' # default grid color
@@ -96,10 +100,10 @@ def windows_menu(root,windowCanvas, e):
 
 	# second drop down menu "Show"
         menuBar.add_cascade(label="Show", menu=showMenu)
-        showMenu.add_command(label="Static", command=do_nothing)
-        showMenu.add_command(label="Oscillate", command=do_nothing)
-        showMenu.add_command(label="Move", command=do_nothing)
-        showMenu.add_command(label="Weird", command=do_nothing)
+        showMenu.add_command(label="Static (bee-hive)", command=lambda:load_shape(root, windowCanvas, beeHive))
+        showMenu.add_command(label="Oscillate (beacon)", command=lambda:load_shape(root, windowCanvas, beacon))
+        showMenu.add_command(label="Move (glider)", command=lambda:load_shape(root, windowCanvas, glider))
+        showMenu.add_command(label="Weird (weird)", command=lambda:load_shape(root, windowCanvas, weird))
 
 	# third drop down menu "Actions"
         menuBar.add_cascade(label="Actions", menu=actionsMenu)
@@ -154,6 +158,31 @@ def save_game():
                 df.to_csv(f,header=False)
                 dfPrev.to_csv(f,header=False)
                 df2Prev.to_csv(f,header=False)
+def load_shape(root, windowCanvas, shape):
+        global df
+        global data
+        global dfPrev
+        global df2Prev
+        global lifeNum
+        global stepNum
+        global storedGridIndex
+        global currentGridColor
+        global waitTime
+        global tiles
+        global storedGrid
+        global cellWidth
+        global cellHeight
+        clear_game(root, windowCanvas)
+        lifeNum = len(shape)
+        stepNum = 0
+        waitTime = 1000
+        storedGridIndex = len(df)
+        df['pos'] = shape
+        color = ['black']*len(df)
+        df['color'] = color
+        storedGrid = list(df['pos'])
+        for coordinates in storedGrid:
+                tiles[coordinates[0]][coordinates[1]] = windowCanvas.create_rectangle(coordinates[0]*cellHeight, coordinates[1]*cellWidth, (coordinates[0]+1)*cellHeight, (coordinates[1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)           
 def load_game(root, windowCanvas):
         global df
         global data
