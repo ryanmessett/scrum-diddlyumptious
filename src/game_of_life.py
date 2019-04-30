@@ -33,6 +33,11 @@ STABILITY_CHECK_ITERATION = int(3)
 
 waitTime = 1000 #start with 1 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
 
+def file_error(root):
+        fileWin = Toplevel(root)
+        button = Button(fileWin, text="There is no save game!")
+        button.pack()
+
 # Creates the drop down menu
 def windows_menu(root,windowCanvas, e):
 
@@ -53,7 +58,6 @@ def windows_menu(root,windowCanvas, e):
                 fileWin = Toplevel(root)
                 button = Button(fileWin, text="Do nothing button")
                 button.pack()
-
 	# change the grid color
         def change_color(changedColors):
                 global currentGridColor
@@ -164,26 +168,29 @@ def load_game(root, windowCanvas):
         global storedGrid
         global cellWidth
         global cellHeight
-        clear_game(root, windowCanvas)
-        with open('savegame.csv', mode='r') as f:
-                fr = csv.reader(f,delimiter=',')
-                row1 = next(fr)
-                lifeNum = row1[0]
-                stepNum = row1[1]
-                waitTime = row1[2]
-                row2 = next(fr)
-                df = pd.read_csv('savegame.csv', skiprows=2, names=data,header=None,nrows=int(row2[0]))
-                dfPrev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0]), names=data, header=None, nrows=int(row2[1]))
-                df2Prev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0])+int(row2[1]),names=data, header=None, nrows=int(row2[2]))
-                storedGridIndex = len(df)
-                storedGrid = df['pos']
-                storedGrid = [eval(x) for x in storedGrid]
+        try:
+                with open('savegame.csv', mode='r') as f:
+                        clear_game(root, windowCanvas)
+                        fr = csv.reader(f,delimiter=',')
+                        row1 = next(fr)
+                        lifeNum = row1[0]
+                        stepNum = row1[1]
+                        waitTime = row1[2]
+                        row2 = next(fr)
+                        df = pd.read_csv('savegame.csv', skiprows=2, names=data,header=None,nrows=int(row2[0]))
+                        dfPrev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0]), names=data, header=None, nrows=int(row2[1]))
+                        df2Prev = pd.read_csv('savegame.csv',skiprows=2+int(row2[0])+int(row2[1]),names=data, header=None, nrows=int(row2[2]))
+                        storedGridIndex = len(df)
+                        storedGrid = df['pos']
+                        storedGrid = [eval(x) for x in storedGrid]
 
-                for coordinates in storedGrid:
-                        tiles[coordinates[0]][coordinates[1]] = windowCanvas.create_rectangle(coordinates[0]*cellHeight, coordinates[1]*cellWidth, (coordinates[0]+1)*cellHeight, (coordinates[1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)
-        if(check_stable(df)):
-                stableLabel = Label(root, text = "Stable")
-                stableLabel.place(x=0, y=25)
+                        for coordinates in storedGrid:
+                                tiles[coordinates[0]][coordinates[1]] = windowCanvas.create_rectangle(coordinates[0]*cellHeight, coordinates[1]*cellWidth, (coordinates[0]+1)*cellHeight, (coordinates[1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)
+                if(check_stable(df)):
+                        stableLabel = Label(root, text = "Stable")
+                        stableLabel.place(x=0, y=25)
+        except IOError:
+                file_error(root)                
         #need to add option to load from name and use variable in readcsv
         #need to add option to save to specific file name and error check filename in save_game
 def clear_game(root, windowCanvas):
@@ -467,7 +474,7 @@ def main():
         windowCanvas.pack()
 	
 	#removes the maximizes windows option
-	root.resizable(0,0)
+        root.resizable(0,0)
 
 	# start monitoring and updating the GUI.
         root.mainloop()
