@@ -1,6 +1,6 @@
 __author__ = "scrum-diddlyumptious"
 
-from Tkinter import *
+from tkinter import *
 import pandas as pd
 import time
 import csv
