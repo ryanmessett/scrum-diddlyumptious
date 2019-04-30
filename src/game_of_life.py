@@ -464,6 +464,9 @@ def main():
 
 	# the pack geometry manager organises widgets in horizontal and vertical boxes
         windowCanvas.pack()
+	
+	#removes the maximizes windows option
+	root.resizable(0,0)
 
 	# start monitoring and updating the GUI.
         root.mainloop()
