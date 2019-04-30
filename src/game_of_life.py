@@ -448,7 +448,7 @@ def main():
         windowCanvas = Canvas(root, width=windowCanvasWidth, height=windowCanvasHeight, borderwidth=0, background='white', highlightbackground = 'black')    
 
 	# create instructions
-        Label(root, text="Instructions:\nChoose From Dropdown Menu Or Left Click Grid Points \n Right click to run one step").pack()
+        Label(root, text="Instructions:\nChoose From Dropdown Menu Or Left Click Grid Points").pack()
 
 	#Displaying step counter
         Label(root, text="Step Count: ").place(x=0, y=1)
