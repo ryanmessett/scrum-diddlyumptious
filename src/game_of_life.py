@@ -1,10 +1,11 @@
 __author__ = "scrum-diddlyumptious"
 
 from tkinter import *
+from tkinter import filedialog as fd
 import pandas as pd
 import time
 import csv
-
+import os
 # Global Variables
 beeHive = [[22, 16], [23, 16], [24, 17], [23, 18], [22, 18], [21, 17]]
 weird = [[10, 11], [11, 10], [11, 11], [11, 12], [12, 10], [30, 30], [30, 31], [30, 34], [31, 30], [31, 33], [32, 30], [32, 33], [32, 34], [34, 30], [34, 32], [34, 33], [34, 34], [35, 32]]
@@ -22,6 +23,7 @@ cellHeight = int(windowCanvasHeight / currentColumns)
 stepNum = 0
 lifeNum = 0
 running = False
+fileName = ''
 colors = ['black', 'blue', 'red', 'green']
 tiles = [[None for _ in range(currentRows)] for _ in range(currentColumns)]
 data = {'color' : '',
@@ -41,7 +43,12 @@ def file_error(root):
         fileWin = Toplevel(root)
         button = Button(fileWin, text="There is no save game!")
         button.pack()
-
+def delete_win(item):
+        item.destroy()
+def choose_file():
+        global fileName
+        filed = fd.asksaveasfile(mode='w', defaultextension=".csv")
+        fileName = filed.name
 # Creates the drop down menu
 def windows_menu(root,windowCanvas, e):
 
@@ -54,9 +61,9 @@ def windows_menu(root,windowCanvas, e):
 	# Write to file
         def command_write_file():
                 fileWin = Toplevel(root)
-                button = Button(fileWin, text="Ryan will implement write file function")
-                button.pack()
-
+                Label(fileWin, text='Enter a filename').pack()
+                Button(fileWin, text='Choose Filename (type name only without extension)', command = lambda:choose_file()).pack()
+                Button(fileWin, text="Accept File Name", command=lambda:delete_win(fileWin)).pack()
    # Skeleton code for menu buttons actions
         def do_nothing():
                 fileWin = Toplevel(root)
@@ -96,7 +103,7 @@ def windows_menu(root,windowCanvas, e):
 	# first drop down menu "FILE"
         menuBar.add_cascade(label="File", menu=fileMenu)
         fileMenu.add_command(label="Read File", command=lambda:load_game(root, windowCanvas))#command=command_read_file)
-        fileMenu.add_command(label="Write File", command=lambda:save_game())#command=command_write_file)
+        fileMenu.add_command(label="Write File", command=command_write_file)#command=command_write_file)
 
 	# second drop down menu "Show"
         menuBar.add_cascade(label="Show", menu=showMenu)
