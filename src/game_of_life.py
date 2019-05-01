@@ -1,3 +1,4 @@
+   
 __author__ = "scrum-diddlyumptious"
 
 from tkinter import *
@@ -37,7 +38,7 @@ FIRST_ITERATION = int(1)
 SECOND_ITERATION = int(2)
 STABILITY_CHECK_ITERATION = int(3)
 
-waitTime = 1000 #start with 1 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
+waitTime = 2500 #start with 2.5 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
 
 def file_error(root):
         fileWin = Toplevel(root)
@@ -124,8 +125,8 @@ def windows_menu(root,windowCanvas, e):
         menuBar.add_cascade(label="Grid/Speed", menu=speedMenu)
         speedMenu.add_command(label="No Grid", command=lambda:windowCanvas.delete('grid_line'))
         speedMenu.add_command(label="Show Grid", command=lambda: create_grid(windowCanvas))
-        speedMenu.add_command(label="Faster", command=lambda:change_speed(0.5)) #multiplying wait time by 0.5 decreases wait time between steps in run()
-        speedMenu.add_command(label="Slower", command=lambda:change_speed(2)) #multiplying wait time by 2 doubles the wait time, giving a slower effect
+        speedMenu.add_command(label="Faster", command=lambda:change_speed(0.01)) #pass in the factor you want the wait time to decrease to
+        speedMenu.add_command(label="Slower", command=lambda:change_speed(5)) #pass in the factor you want wait time to increase by
         speedMenu.add_cascade(label="Color", command=do_nothing, menu=subMenuColor)
 
 	# calling submenu color functions
@@ -182,7 +183,6 @@ def load_shape(root, windowCanvas, shape):
         clear_game(root, windowCanvas)
         lifeNum = len(shape)
         stepNum = 0
-        waitTime = 1000
         storedGridIndex = len(df)
         df['pos'] = shape
         color = ['black']*len(df)
@@ -249,7 +249,7 @@ def clear_game(root, windowCanvas):
                         if tiles[i][x] != None:
                                 windowCanvas.delete(tiles[i][x])
         del storedGrid
-        waitTime = 1000
+        waitTime = 2500
         stepNum = 0
         lifeNum = 0
         storedGridIndex = 0
@@ -354,15 +354,20 @@ def pause_game():
     global running
     running = False
     
-def change_speed(factor): #factor = 2 to slow down, 0.5 to speedup
+def change_speed(factor): #factor > 1 to slow down, < 1 to speedup, allows fast, normal, and slow modes
     global waitTime
     if(factor > 1):
-        waitTime *= factor
+        if(waitTime < 2500):
+            waitTime = 2500 #reset wait time to normal speed
+        elif(waitTime >= 2500):
+            waitTime = 5000 #double the wait time
     elif (factor > 0 and factor < 1):
-        dividend = 1 / factor #converting fraction to an integer to divide by bc tkinter.after requires int
-        dividend = int(dividend)
-        result = waitTime / dividend #waitTime must stay int at all times, since we are working with threads
-        waitTime = int(result)
+        #case where we want to decrease wait time to speed up program
+        if(waitTime <= 2500):
+            waitTime = 0
+        elif(waitTime > 2500):
+            waitTime = 2500
+
         
 #refesh life function
 #takes in the pandas dataframe as a parameter and determines whether the cells on the grid live or die
