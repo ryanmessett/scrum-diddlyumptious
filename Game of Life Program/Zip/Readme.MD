@@ -1,1 +1,1 @@
-Just unzip the file and start playing!
+Just unzip the two zipped files and start playing!
