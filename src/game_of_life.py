@@ -8,20 +8,26 @@ import time
 import csv
 import os
 # Global Variables
+
+#preloaded shapes for menu
 beeHive = [[22, 16], [23, 16], [24, 17], [23, 18], [22, 18], [21, 17]]
 weird = [[10, 11], [11, 10], [11, 11], [11, 12], [12, 10], [30, 30], [30, 31], [30, 34], [31, 30], [31, 33], [32, 30], [32, 33], [32, 34], [34, 30], [34, 32], [34, 33], [34, 34], [35, 32]]
 beacon = [[20, 19], [21, 19], [21, 20], [20, 20], [22, 21], [23, 21], [23, 22], [22, 22]]
 glider = [[1, 2], [2, 2], [3, 2], [3, 1], [2, 0]]
 beeHiveExtended = [[3, 3], [4, 3], [2, 4], [5, 4], [3, 5], [4, 5], [3, 9], [4, 9], [2, 10], [5, 10], [3, 11], [4, 11], [3, 14], [4, 14], [2, 15], [5, 15], [3, 16], [4, 16], [3, 19], [4, 19], [2, 20], [5, 20], [3, 21], [4, 21], [3, 24], [4, 24], [2, 25], [5, 25], [3, 26], [4, 26], [3, 29], [4, 29], [2, 30], [5, 30], [3, 31], [4, 31], [3, 34], [4, 34], [2, 35], [5, 35], [3, 36], [4, 36], [3, 39], [4, 39], [2, 40], [5, 40], [3, 41], [4, 41], [3, 45], [4, 45], [2, 46], [5, 46], [3, 47], [4, 47], [9, 25], [10, 26], [11, 26], [12, 25], [10, 24], [11, 24], [17, 24], [18, 24], [16, 25], [17, 26], [18, 26], [19, 25], [23, 24], [24, 24], [22, 25], [23, 26], [24, 26], [25, 25], [23, 29], [24, 29], [22, 30], [25, 30], [23, 31], [24, 31], [23, 34], [24, 34], [22, 35], [25, 35], [23, 36], [24, 36], [23, 39], [24, 39], [22, 40], [25, 40], [23, 41], [24, 41], [23, 45], [24, 45], [22, 46], [25, 46], [23, 47], [24, 47], [23, 19], [24, 19], [22, 20], [25, 20], [24, 21], [23, 21], [23, 14], [24, 14], [22, 15], [25, 15], [24, 16], [23, 16], [23, 9], [24, 9], [22, 10], [25, 10], [23, 11], [24, 11], [23, 3], [24, 3], [22, 4], [25, 4], [23, 5], [24, 5], [39, 4], [38, 4], [37, 3], [40, 3], [38, 2], [39, 2], [30, 3], [31, 4], [32, 4], [33, 3], [31, 2], [32, 2], [45, 2], [46, 2], [44, 3], [47, 3], [45, 4], [46, 4], [38, 8], [39, 8], [37, 9], [40, 9], [38, 10], [39, 10], [38, 14], [39, 14], [37, 15], [40, 15], [38, 16], [39, 16], [38, 19], [39, 19], [37, 20], [40, 20], [38, 21], [39, 21], [38, 24], [39, 24], [37, 25], [40, 25], [38, 26], [39, 26], [38, 29], [39, 29], [37, 30], [40, 30], [38, 31], [39, 31], [38, 34], [39, 34], [37, 35], [40, 35], [38, 36], [39, 36], [38, 40], [39, 40], [37, 41], [40, 41], [38, 42], [39, 42], [38, 45], [39, 45], [37, 46], [40, 46], [38, 47], [39, 47], [44, 46], [45, 45], [46, 45], [47, 46], [45, 47], [46, 47], [31, 45], [32, 45], [30, 46], [33, 46], [31, 47], [32, 47]]
+
+#grid defaults
 currentRows = 50
 currentColumns = 50
 currentGridColor = 'black' # default grid color
-storedGrid = []
-storedGridIndex = 0
 windowCanvasWidth = 500
 windowCanvasHeight = 500
 cellWidth = int(windowCanvasWidth / currentRows)
 cellHeight = int(windowCanvasHeight / currentColumns)
+
+#baseline for storage and lifecount, etc... storedGrid and df, df2, df2prev are the structures for the board
+storedGrid = []
+storedGridIndex = 0
 stepNum = 0
 lifeNum = 0
 running = False
@@ -41,12 +47,14 @@ STABILITY_CHECK_ITERATION = int(3)
 
 waitTime = 2500 #start with 2.5 second slowdown of game run speed(later can multiply it by speedup/slowdown factor)
 
+#if an invalid save file comes through
 def file_error(root):
         fileWin = Toplevel(root)
         button = Button(fileWin, text="Invalid save file!")
         button.pack()
 def delete_win(item):
         item.destroy()
+#popup and get filename, store to global filename variable
 def choose_file(fileWin):
         global fileName
         filed = fd.asksaveasfile(mode='w', defaultextension=".csv")
@@ -141,18 +149,24 @@ def windows_menu(root,windowCanvas, e):
 
 	# Actually register and display the four menu dropdown menu
         root.config(menu=menuBar)
-
+#step counter label updating
 def step_counter(root):
         global stepNum
         stepNum+=1
         stepCounterLabel = Label(root, text=stepNum)
         stepCounterLabel.place(x=85, y=1)
+#life counter label updating
 def life_counter(root):
         global lifeNum
         global df
         lifeNum = len(df['pos'].tolist())
         lifeCounterLabel = Label(root, text=lifeNum)
         lifeCounterLabel.place(x=windowCanvasWidth-35, y=1)
+#stores game in format:
+#row 1: lifenum, stepnum, waittime
+#row 2: length dataframes(1, 2, 3)
+#row 3...len(dataframe1): dataframe data
+#rows after are other 2 dataframes
 def save_game():
         global df
         global dfPrev
@@ -172,6 +186,7 @@ def save_game():
                 df.to_csv(f,header=False)
                 dfPrev.to_csv(f,header=False)
                 df2Prev.to_csv(f,header=False)
+#reads shapes from global variables:
 def load_shape(root, windowCanvas, shape):
         global df
         global data
@@ -196,6 +211,12 @@ def load_shape(root, windowCanvas, shape):
         storedGrid = list(df['pos'])
         for coordinates in storedGrid:
                 tiles[coordinates[1]][coordinates[0]] = windowCanvas.create_rectangle(coordinates[0]*cellHeight, coordinates[1]*cellWidth, (coordinates[0]+1)*cellHeight, (coordinates[1]+1)*cellWidth, fill=currentGridColor,outline=currentGridColor)
+
+#loads game from csv in format:
+#row 1: lifenum, stepnum, waittime
+#row 2: length dataframes(1, 2, 3)
+#row 3...len(dataframe1): dataframe data
+#rows after are other 2 dataframes
 def load_game(root, windowCanvas):
         global df
         global data
@@ -244,8 +265,7 @@ def load_game(root, windowCanvas):
         except:
                 clear_game(root, windowCanvas)
                 file_error(root)
-        #need to add option to load from name and use variable in readcsv
-        #need to add option to save to specific file name and error check filename in save_game
+#clears board of tiles and resets all variables
 def clear_game(root, windowCanvas):
         global df
         global data
@@ -265,8 +285,8 @@ def clear_game(root, windowCanvas):
         lifeCounterLabel.place(x=windowCanvasWidth-55, y=0)
         stepCounterLabel = Label(root, text="                    ")
         stepCounterLabel.place(x=65, y=0)
-        for i in range(0, len(tiles)-1):
-                for x in range(0, len(tiles[0])-1):
+        for i in range(0, len(tiles)):
+                for x in range(0, len(tiles[0])):
                         if tiles[i][x] != None:
                                 windowCanvas.delete(tiles[i][x])
         del storedGrid
