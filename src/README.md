@@ -8,28 +8,6 @@ Hey, weclome to our game of life source page
 
 ![Alt Text](https://upload.wikimedia.org/wikipedia/en/4/45/Rules_of_Conway%27s_game_of_life_-_Glider.gif)
 
-
-### Prerequisites
-
-```
-A Laptop
-
-A linux operating system
-```
-
-### Installing
-
-```
-sudo apt-get install python-tk
-```
-
-## Running the tests
-
-Explain what these tests test and why
-
-```
-python game_of_life.py
-```
 ## Authors
 
 * **Sang Nguyen** 
